@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+   
+    <flow name="hospital_management-main">
+        <http:listener config-ref="hospital-management-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="hospital-management-config" />
+		<error-handler ref="eapi_error_handlingError_Handler" />
+    </flow>
+    <flow name="hospital_management-console">
+        <http:listener config-ref="hospital-management-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="hospital-management-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\doctors\doctor_id:application\json:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="9c7789f8-85fb-4961-92d7-f4ee33447966" name="update_doctor_with_id"/>
+    </flow>
+    <flow name="put:\patients\patient_id:application\json:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="ba22f436-f859-4385-a87a-58775b8b938e" name="update_patients_with_id"/>
+    </flow>
+    <flow name="delete:\doctors\doctor_id:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="fd66d2e9-7092-4883-8dab-80baeb1c8a89" name="delete_doctor_with_id"/>
+    </flow>
+    <flow name="delete:\patients\patient_id:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="7cf1996a-8d62-4aa1-9949-c248c14fe1fa" name="delete_patients_with_id"/>
+    </flow>
+    <flow name="get:\doctors:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="07183300-201a-4e5d-8ca3-eca90d54cba8" name="fetching_doctors_list"/>
+    </flow>
+    <flow name="get:\doctors\Speciality:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="7e1738e5-3258-4fd8-b037-5c00dfc877f6" name="fetch_doctor_with_speciality"/>
+    </flow>
+    <flow name="get:\doctors\doctor_id:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="336c9406-9223-4224-b853-7d0f7f576184" name="fetch_doctor_with_id"/>
+    </flow>
+    <flow name="get:\patients:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="80a5b726-b9b7-4b96-beb4-edd435e3f830" name="fetch_patients_list"/>
+    </flow>
+    <flow name="get:\patients\patient_id:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="052c6e62-e7bb-483c-887f-e6473d4dfd07" name="fetch_patients_with_id"/>
+    </flow>
+    <flow name="get:\patients\status:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="dd679d04-e871-4b83-a32d-2e1cf57cd637" name="fetch_patients-with_status"/>
+    </flow>
+    <flow name="post:\appointment:application\json:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="45655ec7-7eab-4a76-b0a3-10ddf8f27aeb" name="eapi_apointment"/>
+    </flow>
+	<flow name="post:\doctors:application\json:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="bdb74906-9204-48f1-bb95-7be1c7a2563d" name="insert_doctor_records"/>
+    </flow>
+    <flow name="post:\patients:application\json:hospital-management-config">
+		<flow-ref doc:name="Flow Reference" doc:id="48971e9c-b10d-4eae-8b8b-c02de20947fb" name="insert_patient_records"/>
+    </flow>
+</mule>

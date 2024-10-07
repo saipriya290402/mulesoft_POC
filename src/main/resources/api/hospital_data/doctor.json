@@ -1,0 +1,13 @@
+[
+  {
+    "doctor_id": 456,
+    "name": "Dr. Alice",
+    "gender": "Female",
+    "emailid": "alice@example.com",
+    "occupation": "Surgeon",
+    "specialistIN": "ENT",
+    "acceptingCases": "Only Outpatient",
+    "surgeon": "Yes",
+    "officeHours": "10am to 5pm"
+  }
+]

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+<sub-flow name="update_doctor_with_id" doc:id="a9b7f67a-b196-4679-8bb7-e916e7c2e24c">
+		<http:request method="PUT" doc:name="Connecting to update doctor record by id  flow in papi" doc:id="67d467b6-d8b0-416d-a35a-13990c3c8759" config-ref="HTTP_Request_configuration" path="/api/update/doctor_id" responseTimeout="600000" >
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	ID : attributes.queryParams.ID
+}]]]></http:query-params>
+		</http:request>
+
+    </sub-flow>
+<sub-flow name="update_patients_with_id" doc:id="32d95717-22fa-43ee-9e5b-2dc09b909d9b">
+        <until-successful maxRetries="5" doc:name="Until Successful" doc:id="985ad4b5-29ad-4acb-a011-2ffd6bc5b07a">
+            <http:request method="PUT" doc:name="Connecting to update patient record by id  flow in papi" doc:id="d6c02107-5993-4547-92f7-cc9c43ed4d4e" config-ref="HTTP_Request_configuration" path="/api/update/patient_id" responseTimeout="6000000">
+                <http:query-params><![CDATA[#[output application/json
+---
+{
+	ID : attributes.queryParams.ID
+}]]]></http:query-params>
+            </http:request>
+        </until-successful>
+    </sub-flow>
+    <sub-flow name="delete_doctor_with_id" doc:id="c9639a99-e8ad-4735-ab64-81da095e6a55">
+        <http:request method="DELETE" doc:name="connecting to delete doctor record by id flow in papi" doc:id="435ee41f-5f28-4c8a-b3c0-545aeadcb15c" config-ref="HTTP_Request_configuration" path="/api/delete/doctor_id" responseTimeout="6000000">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	ID : attributes.queryParams.ID
+}]]]></http:query-params>
+        </http:request>
+		<ee:transform doc:name="sending deletion successfull message to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+    <sub-flow name="delete_patients_with_id" doc:id="60c9dc2d-aada-42dd-9239-1eb9009bc026">
+        <http:request method="DELETE" doc:name="connecting to delete patient record by id flow in papi" doc:id="0c3333bd-7268-401e-a2d8-5c130943abc8" config-ref="HTTP_Request_configuration" path="/api/delete/patientid" responseTimeout="6000000">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	ID : attributes.queryParams.ID
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform doc:name="sending deletion successfull message to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+     <sub-flow name="fetching_doctors_list" doc:id="83d529d6-0158-4761-95a6-2e03d114e880">
+		<http:request method="GET" doc:name="connecting to fetch doctors record flow in papi" doc:id="9c11b656-5e1c-4450-9d13-847892df73d8" config-ref="HTTP_Request_configuration" path="/api/fetch_doctors" responseTimeout="6000000" />
+		<ee:transform doc:name="sending fetched records to postman" doc:id="533b2c88-922e-472b-b33d-3b18abfe8464" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </sub-flow>
+    <sub-flow name="fetch_doctor_with_speciality" doc:id="1a27d261-7a27-4dda-8826-da3ff613c711">
+        <http:request method="GET" doc:name="connecting to fetch doctors record  by speciality flow in papi" doc:id="8da61158-f8f5-47b5-b96c-cc78c9d5332e" config-ref="HTTP_Request_configuration" responseTimeout="6000000" path="/api/fetch_doctor/speciality">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	Speciality : attributes.queryParams.Speciality
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform doc:name="sending fetch records to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+    <sub-flow name="fetch_doctor_with_id" doc:id="01e12c5a-6cdb-4d65-90b4-d5697eeaa381">
+        <http:request method="GET" doc:name="connecting to fetch doctors record by id flow in papi" doc:id="9703cb68-a1c0-423d-94e7-2c7b68679534" config-ref="HTTP_Request_configuration" path="/api/fetch/doctor_id" responseTimeout="6000000">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	ID : attributes.queryParams.ID
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform doc:name="sending doctors records to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+    <sub-flow name="fetch_patients_list" doc:id="b54938e5-164d-4800-8b84-5ded66960271">
+        <http:request method="GET" doc:name="connecting to fetch patients record flow in papi" doc:id="21e9a6e4-d491-4098-8f54-27f98b92bf5b" config-ref="HTTP_Request_configuration" path="/api/fetch_patients" responseTimeout="600000" />
+        <ee:transform doc:name="sending fetched doctors records to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+    <sub-flow name="fetch_patients_with_id" doc:id="72d316e0-e512-41f5-97e5-bcbbb7be8e91">
+        <http:request method="GET" doc:name="connecting to fetch patients record by id flow in papi" doc:id="47d9c980-1445-407d-8c4f-26c853eb8567" config-ref="HTTP_Request_configuration" path="/api/fetch/patient_id" responseTimeout="600000">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	ID : attributes.queryParams.ID
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform doc:name="sending fetched records to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+    <sub-flow name="fetch_patients-with_status" doc:id="eeabc271-6e86-4ef2-9030-25025c727091">
+        <http:request method="GET" doc:name="connecting to fetch patients record by status flow in papi" doc:id="55710aac-d9a3-4aec-a4c8-3c8d7fd9ad3b" config-ref="HTTP_Request_configuration" path="/api/fetch/patient_status" responseTimeout="6000000">
+            <http:query-params><![CDATA[#[output application/java
+---
+{
+	Status : attributes.queryParams.Status
+}]]]></http:query-params>
+        </http:request>
+        <ee:transform doc:name="sending fetched patients to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+    <sub-flow name="insert_doctor_records" doc:id="4a37a4e9-1b04-41c9-bdbe-0c9ccf837ed2">
+        <http:request method="POST" doc:name="inserting doctors record by validating" doc:id="db588db2-bc46-43dd-a5c6-fa961abf63c0" config-ref="HTTP_Request_configuration" path="/api/insert_doctor" responseTimeout="600000" />
+        <ee:transform doc:name="sending message to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+    <sub-flow name="insert_patient_records" doc:id="5f012123-bddb-4187-b3fd-d63ccbb4ff90">
+        <http:request method="POST" doc:name="inserting patients records by validating" doc:id="ebf09dce-cb80-4599-90a7-35f14e7e9703" config-ref="HTTP_Request_configuration" path="/api/insert_patient" responseTimeout="6000000" />
+        <ee:transform doc:name="sending message to postman">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+	<sub-flow name="eapi_apointment" doc:id="c4597c2f-25b8-4ba0-a5d1-2d2b7cf205f7" >
+		<http:request method="POST" doc:name="appointment_for_patient" doc:id="ab96c847-10a4-4c98-811b-4c5e92f3f5a0" config-ref="HTTP_Request_configuration" path="/api/appointment" responseTimeout="6000000"/>
+	</sub-flow>
+
+</mule>

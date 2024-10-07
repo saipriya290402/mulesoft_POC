@@ -1,0 +1,115 @@
+Design a flow using MuleSoft for Hospital Database Management. Your application must follow a 3-Layered architecture: 
+
+ 
+
+Use case – 1: Basic operations 
+
+ 
+
+The following list of operations should be supported for Patient Object. 
+
+Fetch all patient records and insert them into the local file 
+
+Fetch patient records by patientID 
+
+Fetch patient records by status 
+
+Update patient record by patientID 
+
+Delete patient record by patientID 
+
+Insert New record in Patient Database (validation check before insert) 
+
+ 
+
+The following list of operations should be supported for Doctor Object. 
+
+Fetch all Doctor list 
+
+Fetch doctor record by StaffID 
+
+Fetch doctor records by Specialty 
+
+Update doctor record by StaffID 
+
+Delete doctor record by StaffID 
+
+Insert staff/doctor record in doctor Database (validation check before insert) 
+
+ 
+
+The following requirements have to be fulfilled by your application: 
+ 
+1. Before Insert any record either Doctor or Patient, verify is this record is existed or not 
+
+If exist, update the record in MYSQL DB and store it in one CSV file name should be as updated records 
+
+If new, create a new record in MYSQL DB and store it in one CSV file name should be as newly inserted records 
+
+In both cases send an acknowledgement message in the correct format 
+
+2. If any required field is missed, store that data into one file, to capture failed records 
+
+3. Timestamp is required for database 
+
+4. Create 2 environments (dev and qa) 
+
+5. create RAML with datatypes, fragments and examples (with a detailed description) 
+
+6. apply basic auth policy 
+
+7. create a postman collection environment 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Use case – 2: Appointment Booking Request  
+
+  
+
+Make an appointment call and store the record in one file  
+
+a. Patient will register through the form available on the website and that data will hit to MuleAPI  
+
+b. Verify whether the patient record is existed or not  
+
+If yes then based on the reason of the visit find a doctor from the available doctors’ list  
+
+If not create a new record for the patient and find a doctor from the available doctors’ list.  
+
+ c. Merge both Patient and doctor details and send details to the file system based on AcceptingCases  
+
+If AcceptingCases is outpatient, then change manually it OP-Visit  
+
+If AcceptingCases is another value then change it to Emergency  
+
+Requirements:  
+
+Create API   
+
+Only post method  
+
+Apply any policy  
+
+Deploy project after implementation  
+
+All credentials will be secured  
+
+Follow API-led connectivity  
+
+  
+
+note:   
+
+1) All credentials should be secured  
+
+2) Check the shared excel sheet for the fields to be stored for Patient and Doctor objects  

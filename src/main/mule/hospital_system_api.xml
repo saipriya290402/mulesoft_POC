@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+    
+	<flow name="hospital_system_api-main">
+        <http:listener config-ref="hospital_system_api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="hospital_system_api-config" />
+		<error-handler ref="sapi_error_handlerError_Handler" />
+    </flow>
+    <flow name="hospital_system_api-console">
+        <http:listener config-ref="hospital_system_api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="hospital_system_api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="post:\delete:application\json:hospital_system_api-config">
+        <ee:transform doc:name="taking deletion query from papi" doc:id="aecdd832-b84a-45f8-931c-2f5a4de2de0d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.query]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:delete doc:name="Deleting Records in database" doc:id="92155047-1419-4fd6-a482-2eb96acdc030" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[payload  default "delete from patient_details"]]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"Id" : attributes.queryParams.Id
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="sending successful message to papi" doc:id="110b8f65-e3ba-461f-a39f-d9cfb44f6061" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"deleted record successfully"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow>
+    <flow name="post:\fetch:application\json:hospital_system_api-config">
+		<ee:transform doc:name="taking selection query from papi" doc:id="33441c58-e2a1-4935-a257-c69423c373c9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.query]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:select doc:name="Selecting records from database" doc:id="7b5a8b3d-aeec-4146-b1f1-e0c2f8998538" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[payload]]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="sennding successfull message to papi" doc:id="e6322c84-96e8-4f71-9ead-05d0316ed50c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler ref="sapi_error_handlerError_Handler" />
+    </flow>
+    <flow name="post:\insert:application\json:hospital_system_api-config">
+        <ee:transform doc:name="taking insert query from papi" doc:id="8c99f970-78d7-453f-8dfc-aa04191806ba" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<db:insert doc:name="Inserting Records" doc:id="3a1b490d-90b2-4b2c-8ece-cd17cae3e1a5" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[payload.query  default "select * from hospital_details"]]]></db:sql>
+			<db:input-parameters ><![CDATA[#[payload.inputparam]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="sending successful message to papi">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Data Inserted Successfully Into DbB"
+} ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\update:application\json:hospital_system_api-config">
+        <ee:transform doc:name="Taking update query from papi" doc:id="b5358c3c-fe79-474a-8f57-24ec3dde9235" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="updatePayload" ><![CDATA[%dw 2.0
+output application/json
+---
+payload.query
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<db:update doc:name="Updating Records" doc:id="180110bb-07cc-46f6-9dee-caad9c694a17" config-ref="Database_Config">
+			<db:sql ><![CDATA[#[vars.updatePayload  default "delete from patient_details"]]]></db:sql>
+			<db:input-parameters ><![CDATA[#[payload.inputparam]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="sending successful message to papi">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  message: "Records Updated Successfully"
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\write:application\json:hospital_system_api-config">
+		<ee:transform doc:name="taking payload from papi" doc:id="85e663a2-fea2-4812-99c4-1fef80a71f57" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv header=false
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Writing Records into CSV File" doc:id="81904cf0-4869-4d0e-beae-d6247a43539d" config-ref="File_Config" path="C:\Users\Admin\Documents\hospital\patient_inserted_files.csv" mode="APPEND"/>
+		<ee:transform doc:name="sending successful message to papi" doc:id="91946ad7-d15c-4ec9-8bc3-21755455b82d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"new record stored in csv file sucessfully"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow>
+</mule>

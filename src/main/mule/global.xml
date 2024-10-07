@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <http:listener-config name="hospital-management-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}" readTimeout="${http.timeout}" />
+    </http:listener-config>
+   <apikit:config name="hospital-management-config" api="resource::8bf09546-367a-446e-991a-139668fe1e70:hospital-management:1.0.3:raml:zip:hospital-management.raml" outboundHeadersMapName="${router.outbound}" httpStatusVarName="${router.varname}" />
+    <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="14d54823-dfb0-4cef-a65c-f2d347cfc406">
+        <http:request-connection host="${request.host}" port="${request.port}" maxConnections="${request.maxconnections}" connectionIdleTimeout="${request.idletimeout}" />
+    </http:request-config>
+    <configuration-properties doc:name="Configuration properties" doc:id="06974450-2270-4ea5-b8a3-0727530bf8f8" file="eapi.dev.properties" />
+</mule>

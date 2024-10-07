@@ -1,0 +1,87 @@
+#%RAML 1.0
+title: Hospital_system_api
+baseUri: http://localhost:8081/api
+
+documentation:
+  - title: Overview
+    content: |
+      This API allows managing patients and doctors records in Hospital Mangement.
+
+protocols:
+  - HTTP
+  - Https
+  
+securitySchemes:
+  basicAuth:
+    description: |
+      This API supports basic authentication.
+    type: Basic Authentication
+
+/fetch:
+  post:
+    description: Fetch details
+    body:
+      application/json:
+        example:
+          {
+            "query": "select * from db"
+          } 
+    responses:
+      200:
+        description: Data Fetched Successfully
+ 
+/insert:
+  post:
+    description: Insert Records Into DB
+    body:
+      application/json:
+        example: !include hospital_data/doctor.json
+    responses:
+      201:
+        body:
+          application/json:
+            example:
+              {
+                "message": "Data Inserted Successfully Into DbB"
+              }
+ 
+/update:
+  post:
+    description: Update Records In DB
+    body:
+      application/json:
+        example: !include hospital_data/patient.json
+    responses:
+      200:
+       body:
+        application/json:
+          example:
+            {
+              "message" : "Records Updated Successfully"
+            }
+/delete:
+  post:
+    description: Delete the records
+    body:
+      application/json:
+        example: !include hospital_data/patient.json
+    responses:
+      200:
+        description: Successfully deleted the record
+        body:
+          application/json:
+            example: |
+              {
+                "message": "record deleted successfully."
+              }
+      204:
+        description: Successfully deleted the record with no content returned
+ 
+/write:
+  post:
+    body:
+      application/json:
+        examples:
+          {
+            "path" : C:\Users\Admin\Documents\hospital
+          }

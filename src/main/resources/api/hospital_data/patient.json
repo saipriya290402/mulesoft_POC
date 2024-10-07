@@ -1,0 +1,19 @@
+[
+                    {
+                      "patient_id": 123,
+                      "name": "John Doe",
+                      "gender": "Male",
+                      "bod": "1980-01-01",
+                      "mobilenumber": "9876543210",
+                      "address_city": "New York",
+                      "address_state": "NY",
+                      "address_zipcode": "10001",
+                      "emailid": "johndoe@example.com",
+                      "occupation": "Engineer",
+                      "maritial_status": "Single",
+                      "emergency_contact": "Jane Doe, 9876543211",
+                      "status": "Active",
+                      "medical_history": "None",
+                      "timestamp": "2024-09-01T12:00:00Z"
+                    }
+                  ]
